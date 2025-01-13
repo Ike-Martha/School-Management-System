@@ -356,6 +356,181 @@ VALUES
 (16, 4, 72, DATE(DATE_SUB(NOW(), INTERVAL 4 DAY))),
 (16, 5, 85, DATE(DATE_SUB(NOW(), INTERVAL 5 DAY)));
 
-SELECT * FROM gradebook
+
+
+
+
+
+
+
+
+-- Querrying the tables
+/*1. Retrieve Student Grades Across All Courses 
+• Write a query to retrieve each student's full name, course name, marks obtained, 
+and total marks from the GRADEBOOK table. Sort the result by student ID and 
+course names. */
+
+SELECT
+	s.Student_ID,
+	CONCAT (s.First_Name, ' ', s.Last_Name) AS Student_FullName,
+    c.course_name,
+    g.marksobtained AS Actual_score,
+    g.totalmarks AS obtainable_score
+FROM
+	Student s
+ JOIN
+	gradebook g
+ON
+	s.Student_ID = g.StudentID
+JOIN 
+	courses c
+ON
+	g.CourseID = c.Course_ID
+ORDER BY 
+	s.student_id;
+    
+ 
+/* Track Student Attendance 
+• Write a query to display attendance records for each student. Show student full 
+name, course name, date of attendance, and attendance status. */
+
+ SELECT 
+	CONCAT(s.first_name, ' ',  s.last_name) AS full_name,
+    c.course_name,
+    a.date AS attendance_date,
+    a.status AS attendance_status
+FROM
+	student s
+INNER JOIN 
+	attendance a
+ON
+	s.Student_ID = a.StudentID
+INNER JOIN
+	courses c
+ON
+	a.CourseID = c.Course_ID;
+    
+/*
+Calculate Average Marks for Each Student 
+• Write a query to calculate the average marks obtained by each student across all 
+courses. Display the student's full name and their average marks.
+*/
+
+
+SELECT
+	CONCAT(s.first_name, ' ', s.last_name) AS full_name,
+    AVG(g.marksobtained) AS Avg_marksobtained
+FROM
+	student s
+INNER JOIN
+	gradebook g
+ON
+	s.Student_ID = g.StudentID
+    
+GROUP BY 
+	First_Name, Last_Name
+ORDER BY Avg_marksobtained DESC;
+
+/*
+List Teachers and the Courses They Teach 
+• Write a query to display each teacher's full name and the courses they are 
+assigned to teach. Display the courses taught by multiple teachers 
+*/
+select*from courses;
+SELECT
+	CONCAT(t.first_name, ' ', t.last_name) AS full_name,
+    c.Course_Description,
+    c.course_name
+FROM
+	teachers t
+INNER JOIN
+	teachers_courses tc
+ON
+	t.Teacher_ID = tc.TeacherID
+INNER JOIN
+	courses c
+ON
+	tc.CourseID = c.Course_ID
+ORDER BY 
+	c.Course_Name;
+    
+
+/*
+Find Courses with the Highest Enrollment 
+• Determine which courses have the highest number of students enrolled. Display 
+the course name and the total number of students. 
+*/
+
+SELECT 
+	c.course_name,
+    COUNT(s.student_id) AS Enrolled_students
+FROM
+	student s
+INNER JOIN
+	attendance a
+ON
+	s.Student_ID = a.StudentID
+INNER JOIN 
+	courses c
+ON	
+	a.CourseID = c.Course_ID
+GROUP BY
+	c.Course_Name;
+    
+
+/*
+Identify Underperforming Students 
+• Write a query to identify students who scored below 50% in any course. Display 
+the student's full name, course name, marks obtained, and total marks.
+*/
+
+SELECT 
+	CONCAT(s.first_name, ' ', s.last_name) AS Full_name,
+    c.course_name AS course_code,
+    g.marksobtained AS actual_mark,
+    g.totalmarks AS Total_mark
+FROM
+	gradebook g
+INNER JOIN
+	 student s
+ON
+	g.StudentID = s.Student_ID 
+INNER JOIN
+	courses c
+ON
+	g.CourseID = c.Course_ID
+WHERE 
+	(g.MarksObtained / g.TotalMarks) < 0.5 ; -- an empty table returned because no student scored below 50%
+
+/*
+Generate a Report of Teacher Workloads 
+• Write a query to calculate the total number of courses each teacher is responsible 
+for. Display the teacher's full name and the number of courses.
+*/
+
+SELECT 
+	CONCAT(t.first_name, ' ', t.last_name) AS full_name,
+    COUNT(c.course_id) total_course
+FROM 
+	teachers t
+INNER JOIN 
+	teachers_courses tc
+ON 
+	t.Teacher_ID = tc.TeacherID
+INNER JOIN 
+	courses c
+ON
+	tc.CourseID = c.Course_ID
+GROUP BY
+	full_name
+ORDER BY 
+	total_course desc;
+
+
+	
+
+    
+    
+    
 
 
